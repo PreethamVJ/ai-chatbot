@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free AI Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #chatbox {
+            width: 400px;
+            height: 500px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: scroll;
+        }
+        #userInput {
+            width: 300px;
+            padding: 5px;
+        }
+        button {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Free AI Chatbot</h1>
+    <div id="chatbox">
+        <div id="chatlogs"></div>
+    </div>
+    <input type="text" id="userInput" placeholder="Type your message here...">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        function sendMessage() {
+            const userInput = document.getElementById('userInput').value;
+
+            // Send the user's message to the Flask backend
+            fetch('http://127.0.0.1:5000/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: userInput }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Display the user's message and the bot's response in the chatbox
+                const chatlogs = document.getElementById('chatlogs');
+                chatlogs.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+                chatlogs.innerHTML += `<p><strong>Bot:</strong> ${data.response}</p>`;
+                document.getElementById('userInput').value = ''; // Clear the input field
+                chatlogs.scrollTop = chatlogs.scrollHeight; // Auto-scroll to the bottom
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while sending the message. Please try again.');
+            });
+        }
+    </script>
+</body>
+</html>
